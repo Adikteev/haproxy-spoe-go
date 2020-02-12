@@ -27,7 +27,7 @@ func (f *Frame) Encode(dest io.Writer) (n int, err error) {
 	var payload []byte
 
 	switch f.Type {
-	case TypeAgentHello, TypeAgentDisconnect:
+	case TypeAgentHello, TypeAgentDisconnect, TypeHaproxyHello, TypeHaproxyDisconnect:
 		payload, err = f.KV.Bytes()
 		if err != nil {
 			return
@@ -40,7 +40,12 @@ func (f *Frame) Encode(dest io.Writer) (n int, err error) {
 				return
 			}
 		}
+	case TypeNotify:
+		if len(*f.Messages) > 0 {
+			err = fmt.Errorf("Encoding Notify frame with Message isn't handled yet")
+			return
 
+		}
 	default:
 		err = fmt.Errorf("unexpected frame type %d", f.Type)
 		return
